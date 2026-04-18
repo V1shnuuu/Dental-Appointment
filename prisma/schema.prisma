@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Ensure local SQLite is the provider
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String?       @unique
+  phone        String        @unique
+  passwordHash String?
+  role         String        @default("patient") // 'patient', 'doctor', 'admin'
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  patientInfo  PatientInfo?
+  appointments Appointment[]
+}
+
+model PatientInfo {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  fullName         String
+  age              Int
+  gender           String
+  address          String?
+  
+  // Medical
+  diabetes         Boolean  @default(false)
+  bloodPressure    Boolean  @default(false)
+  allergies        String?
+  previousVisit    Boolean  @default(false)
+  previousVisitDate String? // e.g., "2024-05-12"
+}
+
+model Doctor {
+  id           String        @id @default(uuid())
+  name         String
+  specialty    String
+  appointments Appointment[]
+}
+
+model Appointment {
+  id          String   @id @default(uuid())
+  patientId   String
+  doctorId    String
+  patient     User     @relation(fields: [patientId], references: [id])
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
+  
+  appointmentDate String // "2026-10-15"
+  appointmentTime String // "10:00 AM"
+  reason        String
+  painLevel     Int // 0 - 10
+  notes         String?
+  status        String   @default("confirmed") // 'confirmed', 'completed', 'cancelled'
+
+  createdAt   DateTime @default(now())
+}
