@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { loginUser } from '@/lib/auth';
+import { loginUser, logoutUser } from '@/lib/auth';
 import { z } from 'zod';
 
 const signupSchema = z.object({
@@ -83,4 +83,8 @@ export async function loginAction(prevState: any, formData: FormData) {
   } catch (error: any) {
     return { error: error.message };
   }
+}
+
+export async function logoutAction() {
+  await logoutUser();
 }

@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (state?.success) router.push('/dashboard');
+    if (state?.success) router.push('/patient/dashboard');
   }, [state, router]);
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CalendarDays, Clock, ArrowRight, ChevronRight, Activity, FileText, Heart, Sparkles, TrendingUp, Sun, Bell } from 'lucide-react';
+import { CalendarDays, Clock, ArrowRight, ChevronRight, Activity, FileText, Heart, Sparkles, TrendingUp, Sun, Bell, MessageSquare, FolderClosed } from 'lucide-react';
 import Link from 'next/link';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -101,7 +101,7 @@ export default function PatientDashboard() {
                   </span>
                 </div>
               </div>
-              <Link href="/book" className="btn btn-secondary btn-sm">Reschedule</Link>
+              <Link href="/book?reschedule=true&doctor=Dr.+Sarah+Smith&specialty=General+Dentist&initials=SS&location=Main+Campus&date=2026-10-15&time=10:00+AM&reason=General+Checkup" className="btn btn-secondary btn-sm">Reschedule</Link>
             </div>
           </div>
         </motion.div>
@@ -162,27 +162,29 @@ export default function PatientDashboard() {
           </div>
         </motion.div>
 
-        {/* Reminders */}
+        {/* Communication Hub */}
         <motion.div variants={fadeUp} className="card" style={{ padding: 24, cursor: 'default' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700 }}>Reminders</h3>
-            <Bell size={16} style={{ color: 'var(--text-tertiary)' }} />
+            <h3 style={{ fontSize: 14, fontWeight: 700 }}>Communication</h3>
+            <MessageSquare size={16} style={{ color: 'var(--accent)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              { text: 'Take Amoxicillin — 2:00 PM', type: 'Medication', color: 'var(--accent)' },
-              { text: 'Dental cleaning due in 28 days', type: 'Checkup', color: 'var(--teal)' },
-              { text: 'Insurance renewal next month', type: 'Billing', color: 'var(--amber)' },
-            ].map((r, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
-                <div style={{ width: 4, height: 32, borderRadius: 4, background: r.color, flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{r.text}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{r.type}</div>
+              { text: 'Dr. Wilson sent a message', sub: 'Regarding your X-rays', icon: MessageSquare, color: 'var(--accent)', href: '/patient/messages' },
+              { text: 'New report shared', sub: 'Care_Instructions.pdf', icon: FolderClosed, color: 'var(--teal)', href: '/patient/files' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color }}>
+                   <item.icon size={16} />
                 </div>
-              </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.text}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{item.sub}</div>
+                </div>
+              </Link>
             ))}
           </div>
+          <Link href="/patient/messages" style={{ display: 'block', textAlign: 'center', marginTop: 12, fontSize: 12, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>Open Message Center</Link>
         </motion.div>
       </div>
 

@@ -1,273 +1,290 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { Sparkles, ArrowRight, CalendarDays, Activity, ShieldCheck, ChevronRight, Star, Heart } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { 
+  ArrowRight, Heart, CalendarDays, Activity, Shield, Users, 
+  Sparkles, CheckCircle2, ChevronRight, Play, Star, Menu, X
+} from 'lucide-react';
 import Link from 'next/link';
+import { useState, useRef } from 'react';
 
-const FadeUp = ({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-60px' });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-};
+const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } } };
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => {
-      document.querySelectorAll('.card, .bento-card').forEach((el: any) => {
-        const rect = el.getBoundingClientRect();
-        el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-        el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-      });
-    };
-    window.addEventListener('mousemove', handleMouse);
-    return () => window.removeEventListener('mousemove', handleMouse);
-  }, []);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <div style={{ background: 'var(--bg-base)' }}>
-      {/* Ambient Background */}
-      <div className="ambient-bg">
-        <div className="ambient-blob blob-1" />
-        <div className="ambient-blob blob-2" />
-        <div className="ambient-blob blob-3" />
-      </div>
-
-      {/* ═══ NAVIGATION ═══ */}
-      <nav style={{
-        position: 'fixed', top: 0, width: '100%', zIndex: 100,
-        background: 'rgba(250, 251, 253, 0.82)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    <div className="landing-root" style={{ background: 'var(--bg-base)', overflowX: 'hidden' }}>
+      {/* ═══ NAVBAR ═══ */}
+      <header style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        padding: '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(250, 251, 253, 0.7)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border)',
       }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 20, letterSpacing: '-0.02em' }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #2563EB, #0D9488)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Heart size={18} color="white" fill="white" />
-            </div>
-            DentalCare<span style={{ color: 'var(--accent)' }}>+</span>
-          </Link>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 32, fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)' }}>
-            <Link href="#features" style={{ transition: 'color 0.2s' }}>Features</Link>
-            <Link href="#how" style={{ transition: 'color 0.2s' }}>How it Works</Link>
-            <Link href="#" style={{ transition: 'color 0.2s' }}>Pricing</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 22, color: 'var(--text-primary)' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #2563EB, #0D9488)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Heart size={18} color="white" fill="white" />
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/login" className="btn btn-ghost" style={{ fontSize: 14 }}>Sign In</Link>
-            <Link href="/signup" className="btn btn-primary btn-sm">Get Started <ArrowRight size={15} /></Link>
-          </div>
+          DentalConnect <span style={{ color: 'var(--accent)' }}>OS</span>
         </div>
-      </nav>
 
-      {/* ═══ HERO ═══ */}
-      <section ref={heroRef} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 120, paddingBottom: 80, position: 'relative', overflow: 'hidden' }}>
-        <motion.div style={{ y: heroY, opacity: heroOpacity, textAlign: 'center', maxWidth: 800, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 2 }}>
-          {/* Pill Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 99, border: '1px solid var(--border-strong)', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-sm)', marginBottom: 32, fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}
-          >
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--mint)', boxShadow: '0 0 8px rgba(16,185,129,0.6)' }} />
-            Now available — DentalCare+ 2.0
-            <ChevronRight size={14} style={{ color: 'var(--text-tertiary)' }} />
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="desktop-nav">
+          {['Features', 'How it Works', 'Pricing', 'About'].map(item => (
+            <Link key={item} href={`#${item.toLowerCase().replace(' ', '-')}`} style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}>
+              {item}
+            </Link>
+          ))}
+        </nav>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link href="/portal-select" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none' }}>
+            Sign In
+          </Link>
+          <Link href="/portal-select" className="btn btn-primary" style={{ padding: '10px 24px', borderRadius: 12, fontSize: 14 }}>
+            Get Started
+          </Link>
+          <button className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ display: 'none', background: 'none', border: 'none' }}>
+            {isMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
+      </header>
+
+      {/* ═══ HERO SECTION ═══ */}
+      <section ref={heroRef} style={{ padding: '180px 40px 120px', textAlign: 'center', position: 'relative' }}>
+        <div className="ambient-bg">
+          <div className="ambient-blob blob-1" style={{ width: 600, height: 600, top: -100, left: '50%', marginLeft: -300 }} />
+          <div className="ambient-blob blob-2" style={{ width: 800, height: 800, bottom: -400, right: -100 }} />
+        </div>
+
+        <motion.div variants={stagger} initial="hidden" animate="visible" style={{ position: 'relative', zIndex: 10, maxWidth: 900, margin: '0 auto' }}>
+          <motion.div variants={fadeUp} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 99, background: 'var(--accent-soft)', color: 'var(--accent)', fontSize: 13, fontWeight: 600, marginBottom: 24 }}>
+            <Sparkles size={14} /> Now Available: Patient & Doctor Multi-Portal
           </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            style={{ fontSize: 'clamp(40px, 7vw, 72px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: 24 }}
-          >
-            Your smile deserves
-            <br />
-            <span className="text-gradient">premium care.</span>
+          <motion.h1 variants={fadeUp} style={{ fontSize: 'clamp(40px, 8vw, 72px)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: 24 }}>
+            Modern Dental Care <br />
+            <span style={{ background: 'linear-gradient(to right, var(--accent), var(--teal))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Reimagined.</span>
           </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            style={{ fontSize: 18, color: 'var(--text-secondary)', maxWidth: 540, margin: '0 auto 40px', lineHeight: 1.7, fontWeight: 400 }}
-          >
-            Book appointments, track your health, and manage your dental journey — all in one beautifully crafted patient portal.
+          <motion.p variants={fadeUp} style={{ fontSize: 'clamp(16px, 1.5vw, 20px)', color: 'var(--text-secondary)', maxWidth: 640, margin: '0 auto 40px', lineHeight: 1.6 }}>
+            One connected platform for Patients and Doctors. DentalConnect OS streamlines everything from clinical notes to patient bookings.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}
-          >
-            <Link href="/signup" className="btn btn-primary btn-lg" style={{ fontSize: 16, padding: '16px 36px' }}>
-              Start Your Journey <ArrowRight size={18} />
+          <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+            <Link href="/portal-select" className="btn btn-primary" style={{ padding: '16px 36px', fontSize: 16, borderRadius: 16 }}>
+              Get Started Now <ArrowRight size={18} />
             </Link>
-            <Link href="#features" className="btn btn-secondary btn-lg" style={{ fontSize: 16, padding: '16px 36px' }}>
-              Explore Features
-            </Link>
-          </motion.div>
-
-          {/* Trust Indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, marginTop: 48, color: 'var(--text-tertiary)', fontSize: 13 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              {[1,2,3,4,5].map(i => <Star key={i} size={14} fill="#F59E0B" color="#F59E0B" />)}
-              <span style={{ marginLeft: 6 }}>4.9 Rating</span>
-            </div>
-            <span style={{ width: 1, height: 16, background: 'var(--border-strong)' }} />
-            <span>10,000+ patients</span>
-            <span style={{ width: 1, height: 16, background: 'var(--border-strong)' }} />
-            <span>HIPAA Compliant</span>
+            <button className="btn btn-secondary" style={{ padding: '16px 36px', fontSize: 16, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Play size={16} fill="currentColor" /> Watch Demo
+            </button>
           </motion.div>
         </motion.div>
 
         {/* Dashboard Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 80, rotateX: 8 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          style={{ width: '100%', maxWidth: 1100, margin: '60px auto 0', padding: '0 24px', perspective: 2000, position: 'relative', zIndex: 2 }}
+        <motion.div 
+          style={{ 
+            marginTop: 80, position: 'relative', zIndex: 10, 
+            perspective: '2000px', y, opacity
+          }}
         >
-          <div style={{
-            borderRadius: 24, overflow: 'hidden',
-            border: '1px solid var(--border)',
-            boxShadow: '0 40px 120px -20px rgba(37,99,235,0.12), 0 0 0 1px var(--border)',
-            background: 'var(--bg-surface)',
-          }}>
-            {/* Browser Chrome */}
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-subtle)' }}>
+          <motion.div
+            initial={{ opacity: 0, rotateX: 20, scale: 0.9 }}
+            animate={{ opacity: 1, rotateX: 0, scale: 1 }}
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{ 
+              maxWidth: 1100, margin: '0 auto', background: 'var(--bg-surface)', 
+              borderRadius: 24, boxShadow: '0 40px 100px rgba(0,0,0,0.1)', border: '1px solid var(--border)',
+              overflow: 'hidden', padding: 12
+            }}
+          >
+            <div style={{ background: 'var(--bg-subtle)', borderRadius: 16, padding: '12px 16px', border: '1px solid var(--border)', display: 'flex', gap: 8, marginBottom: 12 }}>
               <div style={{ display: 'flex', gap: 6 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57' }} />
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F56' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FFBD2E' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#27C93F' }} />
               </div>
-              <div style={{ flex: 1, textAlign: 'center', fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 500 }}>dashboard — DentalCare+</div>
+              <div style={{ flex: 1, height: 10, background: 'rgba(0,0,0,0.05)', borderRadius: 99, maxWidth: 300 }} />
             </div>
-            {/* Mock Dashboard */}
-            <div style={{ display: 'flex', minHeight: 480 }}>
-              {/* Sidebar mock */}
-              <div style={{ width: 220, borderRight: '1px solid var(--border)', padding: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ height: 12, width: 100, background: 'var(--bg-subtle)', borderRadius: 6, marginBottom: 20 }} />
-                {[1,2,3,4,5].map(i => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, background: i === 1 ? 'var(--accent-soft)' : 'transparent' }}>
-                    <div style={{ width: 18, height: 18, borderRadius: 6, background: i === 1 ? 'var(--accent)' : 'var(--bg-subtle)', opacity: i === 1 ? 1 : 0.5 }} />
-                    <div style={{ height: 10, width: 70, background: i === 1 ? 'var(--accent)' : 'var(--bg-subtle)', borderRadius: 4, opacity: i === 1 ? 0.3 : 0.4 }} />
-                  </div>
-                ))}
-              </div>
-              {/* Main area */}
-              <div style={{ flex: 1, padding: 28 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                  <div style={{ height: 18, width: 180, background: 'var(--bg-subtle)', borderRadius: 6 }} />
-                  <div style={{ height: 32, width: 110, background: 'var(--accent)', borderRadius: 99, opacity: 0.9 }} />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
-                  {[
-                    { accent: 'var(--accent)', value: '2', label: 'Upcoming' },
-                    { accent: 'var(--teal)', value: '14', label: 'Past Visits' },
-                    { accent: 'var(--mint)', value: '92', label: 'Health Score' },
-                  ].map((item, i) => (
-                    <div key={i} style={{ padding: 20, borderRadius: 16, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 10, background: `${item.accent}15`, marginBottom: 16 }} />
-                      <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)', lineHeight: 1 }}>{item.value}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 4 }}>{item.label}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ height: 200, borderRadius: 16, border: '1px solid var(--border)', background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '60%', background: 'linear-gradient(to top, var(--accent-soft), transparent)' }} />
-                </div>
-              </div>
+            <img 
+              src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2000" 
+              alt="Dashboard Preview" 
+              style={{ width: '100%', borderRadius: 12, display: 'block', filter: 'brightness(0.98)' }}
+            />
+          </motion.div>
+
+          {/* Floating Widgets */}
+          <motion.div 
+            initial={{ x: -60, opacity: 0 }} 
+            whileInView={{ x: 0, opacity: 1 }} 
+            transition={{ delay: 0.5 }}
+            style={{ position: 'absolute', top: '20%', left: '5%', zIndex: 20, width: 220 }}
+            className="floating-widget"
+          >
+            <div className="card" style={{ padding: 20, textAlign: 'left', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)' }}>
+              <CalendarDays size={24} style={{ color: 'var(--accent)', marginBottom: 12 }} />
+              <div style={{ fontSize: 14, fontWeight: 700 }}>Upcoming Visit</div>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Tomorrow at 10:00 AM</div>
             </div>
-          </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ x: 60, opacity: 0 }} 
+            whileInView={{ x: 0, opacity: 1 }} 
+            transition={{ delay: 0.6 }}
+            style={{ position: 'absolute', bottom: '15%', right: '5%', zIndex: 20, width: 220 }}
+            className="floating-widget"
+          >
+            <div className="card" style={{ padding: 20, textAlign: 'left', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)' }}>
+              <CheckCircle2 size={24} style={{ color: 'var(--teal)', marginBottom: 12 }} />
+              <div style={{ fontSize: 14, fontWeight: 700 }}>Payment Success</div>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Invoice #8492 Paid</div>
+            </div>
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* ═══ FEATURES BENTO ═══ */}
-      <section id="features" style={{ padding: '100px 24px', maxWidth: 1200, margin: '0 auto' }}>
-        <FadeUp>
-          <div style={{ marginBottom: 64 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Features</p>
-            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16 }}>Everything you need,<br/>nothing you don't.</h2>
-            <p style={{ fontSize: 17, color: 'var(--text-secondary)', maxWidth: 500, lineHeight: 1.7 }}>A refined set of tools designed to make dental care simple, beautiful, and stress-free.</p>
-          </div>
-        </FadeUp>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 260, gap: 20 }}>
-          {[
-            { span: '2', icon: <CalendarDays size={28} />, title: 'Frictionless Booking', desc: 'Find your specialist, pick a slot, confirm in seconds. No phone calls, no waiting.', bg: 'linear-gradient(135deg, #EFF6FF, #F0FDFA)' },
-            { span: '1', icon: <Activity size={28} />, title: 'Health Insights', desc: 'AI-driven summaries of your dental journey and care recommendations.', bg: 'linear-gradient(135deg, #F5F3FF, #FDF4FF)' },
-            { span: '1', icon: <ShieldCheck size={28} />, title: 'Secure Records', desc: 'Bank-level encryption for all your medical data.', bg: 'linear-gradient(135deg, #F0FDF4, #F5F7FA)' },
-            { span: '2', icon: <Sparkles size={28} />, title: 'Smart Care Assistant', desc: 'Personalized reminders, wellness tips, and treatment tracking powered by AI.', bg: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)' },
-          ].map((f, i) => (
-            <FadeUp key={i} delay={i * 0.1}>
-              <div className="bento-card" style={{ gridColumn: `span ${f.span}`, height: '100%', background: f.bg, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: 'var(--bg-surface)', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', marginBottom: 20 }}>
-                  {f.icon}
+      {/* ═══ PORTAL SELECTOR (Inline Preview) ═══ */}
+      <section style={{ padding: '100px 40px', background: 'var(--bg-subtle)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 16 }}>Unified Portal Selection</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 60 }}>Choose your workspace to get started.</p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, maxWidth: 900, margin: '0 auto' }}>
+            <Link href="/portal-select" style={{ textDecoration: 'none' }}>
+              <motion.div whileHover={{ y: -8 }} className="card" style={{ padding: 40, background: 'var(--bg-surface)', textAlign: 'center', cursor: 'pointer' }}>
+                <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                  <Users size={32} />
                 </div>
-                <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{f.title}</h3>
-                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: 400 }}>{f.desc}</p>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
-      </section>
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Patient Portal</h3>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Book appointments, view medical history, and chat with your doctor.</p>
+                <div style={{ marginTop: 24, fontSize: 14, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  Enter Portal <ChevronRight size={16} />
+                </div>
+              </motion.div>
+            </Link>
 
-      {/* ═══ CTA ═══ */}
-      <section style={{ padding: '100px 24px' }}>
-        <FadeUp>
-          <div style={{
-            maxWidth: 900, margin: '0 auto', textAlign: 'center',
-            borderRadius: 32, padding: '80px 40px',
-            background: 'linear-gradient(135deg, #2563EB, #0D9488)',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', filter: 'blur(60px)' }} />
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: 'white', marginBottom: 16, letterSpacing: '-0.03em' }}>
-              Ready for modern dental care?
-            </h2>
-            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', maxWidth: 480, margin: '0 auto 32px', lineHeight: 1.7 }}>
-              Join thousands of patients already enjoying a beautifully simple healthcare experience.
-            </p>
-            <Link href="/signup" className="btn" style={{ background: 'white', color: 'var(--accent)', fontWeight: 600, padding: '16px 36px', fontSize: 16, borderRadius: 99, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-              Get Started Free <ArrowRight size={18} />
+            <Link href="/portal-select" style={{ textDecoration: 'none' }}>
+              <motion.div whileHover={{ y: -8 }} className="card" style={{ padding: 40, background: 'var(--bg-surface)', textAlign: 'center', cursor: 'pointer' }}>
+                <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--teal-soft)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                  <Activity size={32} />
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Doctor Portal</h3>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Manage appointments, patient clinical notes, and prescriptions.</p>
+                <div style={{ marginTop: 24, fontSize: 14, fontWeight: 600, color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  Enter Portal <ChevronRight size={16} />
+                </div>
+              </motion.div>
             </Link>
           </div>
-        </FadeUp>
+        </div>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
-      <footer style={{ borderTop: '1px solid var(--border)', padding: '40px 24px', background: 'var(--bg-surface)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 18 }}>
-            DentalCare<span style={{ color: 'var(--accent)' }}>+</span>
+      {/* ═══ FEATURES BENTO GRID ═══ */}
+      <section id="features" style={{ padding: '120px 40px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 80 }}>
+            <h2 style={{ fontSize: 42, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 16 }}>Everything you need to <br /> run a modern clinic.</h2>
+            <p style={{ fontSize: 18, color: 'var(--text-secondary)' }}>Powerful tools designed for health professionals.</p>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>© 2026 DentalCare+. All rights reserved.</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gridAutoRows: 'minmax(240px, auto)', gap: 24 }}>
+            {/* Bento Items */}
+            <div style={{ gridColumn: 'span 8' }} className="card">
+              <div style={{ padding: 40, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 'auto' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CalendarDays size={20} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: 20, fontWeight: 700 }}>Smart Appointment Queue</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Real-time sync between doctor and patient schedules.</p>
+                  </div>
+                </div>
+                <div style={{ marginTop: 40, background: 'var(--bg-subtle)', borderRadius: 16, height: 200, border: '1px solid var(--border)', overflow: 'hidden', padding: 20 }}>
+                   <div style={{ display: 'flex', gap: 12 }}>
+                      {[1, 2, 3].map(i => (
+                        <div key={i} style={{ flex: 1, background: 'var(--bg-surface)', borderRadius: 12, padding: 16, border: '1px solid var(--border)' }}>
+                          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--accent-soft)', marginBottom: 8 }} />
+                          <div style={{ height: 10, background: 'var(--bg-subtle)', borderRadius: 4, width: '60%', marginBottom: 6 }} />
+                          <div style={{ height: 10, background: 'var(--bg-subtle)', borderRadius: 4, width: '40%' }} />
+                        </div>
+                      ))}
+                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ gridColumn: 'span 4' }} className="card">
+              <div style={{ padding: 40, background: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%)', height: '100%' }}>
+                <Shield size={32} style={{ color: 'var(--teal)', marginBottom: 20 }} />
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>HIPAA Compliant</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6 }}>Your data is encrypted end-to-end with enterprise-grade security protocols.</p>
+              </div>
+            </div>
+
+            <div style={{ gridColumn: 'span 4' }} className="card">
+              <div style={{ padding: 40 }}>
+                <Activity size={32} style={{ color: 'var(--purple)', marginBottom: 20 }} />
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Clinical Analytics</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6 }}>Track clinic performance and patient health trends with ease.</p>
+              </div>
+            </div>
+
+            <div style={{ gridColumn: 'span 8' }} className="card">
+              <div style={{ padding: 40, display: 'flex', gap: 40, alignItems: 'center' }}>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Slack-like Messaging</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 15, lineHeight: 1.6 }}>Direct communication between doctor and patient with file sharing and prescriptions.</p>
+                </div>
+                <div style={{ flex: 1, background: 'var(--bg-subtle)', borderRadius: 16, padding: 20, border: '1px solid var(--border)' }}>
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ alignSelf: 'flex-start', background: 'var(--accent)', color: 'white', padding: '8px 12px', borderRadius: '12px 12px 12px 4px', fontSize: 12 }}>Hello Doctor!</div>
+                      <div style={{ alignSelf: 'flex-end', background: 'var(--bg-surface)', padding: '8px 12px', borderRadius: '12px 12px 4px 12px', fontSize: 12, border: '1px solid var(--border)' }}>How can I help you?</div>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CTA FOOTER ═══ */}
+      <footer style={{ padding: '120px 40px 60px', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 36, fontWeight: 900, marginBottom: 24 }}>Ready to modernize your practice?</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 80 }}>
+            <Link href="/portal-select" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: 16 }}>Get Started</Link>
+            <button className="btn btn-secondary" style={{ padding: '16px 40px', fontSize: 16 }}>Book a Demo</button>
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 18 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg, #2563EB, #0D9488)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Heart size={14} color="white" fill="white" />
+              </div>
+              DentalConnect
+            </div>
+            <div style={{ color: 'var(--text-tertiary)', fontSize: 14 }}>
+              © 2026 DentalConnect OS. All rights reserved.
+            </div>
+          </div>
         </div>
       </footer>
+
+      <style>{`
+        .mobile-nav { display: none; }
+        @media (max-width: 768px) {
+          .desktop-nav { display: none; }
+          .mobile-toggle { display: block !important; }
+          [style*="grid-template-columns: repeat(12"] { grid-template-columns: 1fr !important; }
+          [style*="grid-column: span 8"], [style*="grid-column: span 4"] { grid-column: span 1 !important; }
+          [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+          .floating-widget { display: none; }
+        }
+      `}</style>
     </div>
   );
 }

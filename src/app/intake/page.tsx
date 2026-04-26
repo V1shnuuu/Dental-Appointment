@@ -147,7 +147,7 @@ export default function IntakeWizard() {
                 </motion.div>
                 <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Profile Complete!</h2>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28 }}>Your information has been securely saved.</p>
-                <button onClick={() => router.push('/dashboard')} className="btn btn-primary">
+                <button onClick={() => router.push('/patient/dashboard')} className="btn btn-primary">
                   Go to Dashboard <ArrowRight size={16} />
                 </button>
               </motion.div>

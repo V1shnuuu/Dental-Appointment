@@ -1,22 +1,34 @@
 'use client';
 
-import { LayoutDashboard, CalendarDays, Activity, FileText, Settings, LogOut, Heart, Bell, Search, Command } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Activity, FileText, Settings, LogOut, Heart, Bell, Search, Command, MessageSquare, FolderClosed } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { logoutAction } from '@/lib/actions/authActions';
+import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Book Appointment', href: '/book', icon: CalendarDays },
-  { name: 'Medical History', href: '/history', icon: Activity },
-  { name: 'Prescriptions', href: '/prescriptions', icon: FileText },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: '/patient/dashboard', icon: LayoutDashboard },
+  { name: 'Book Appointment', href: '/patient/book', icon: CalendarDays },
+  { name: 'Medical History', href: '/patient/history', icon: Activity },
+  { name: 'Messages', href: '/patient/messages', icon: MessageSquare },
+  { name: 'Prescriptions', href: '/patient/prescriptions', icon: FileText },
+  { name: 'Shared Files', href: '/patient/files', icon: FolderClosed },
+  { name: 'Settings', href: '/patient/settings', icon: Settings },
 ];
 
 export default function PatientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuth();
   const [showSearch, setShowSearch] = useState(false);
+
+  const handleLogout = async () => {
+    logout();
+    await logoutAction();
+    router.push('/login');
+  };
 
   return (
     <div style={{ display: 'flex', background: 'var(--bg-base)', minHeight: '100vh' }}>
@@ -29,7 +41,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
       {/* ═══ SIDEBAR ═══ */}
       <aside className="sidebar" style={{ background: 'var(--bg-surface)', borderRight: '1px solid var(--border)' }}>
         {/* Logo */}
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)', padding: '0 8px', marginBottom: 8, textDecoration: 'none' }}>
+        <Link href="/patient/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)', padding: '0 8px', marginBottom: 8, textDecoration: 'none' }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #2563EB, #0D9488)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Heart size={15} color="white" fill="white" />
           </div>
@@ -79,7 +91,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Vishnu Priyan</div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>vishnu@email.com</div>
             </div>
-            <button className="btn-icon" style={{ width: 32, height: 32, border: 'none' }} title="Sign Out">
+            <button onClick={handleLogout} className="btn-icon" style={{ width: 32, height: 32, border: 'none' }} title="Sign Out">
               <LogOut size={14} />
             </button>
           </div>
@@ -148,9 +160,9 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
               <div style={{ padding: 12 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 8px', marginBottom: 4 }}>Quick Actions</p>
                 {[
-                  { label: 'Book Appointment', href: '/book' },
-                  { label: 'View Medical History', href: '/history' },
-                  { label: 'Dashboard', href: '/dashboard' },
+                  { label: 'Book Appointment', href: '/patient/book' },
+                  { label: 'View Medical History', href: '/patient/history' },
+                  { label: 'Dashboard', href: '/patient/dashboard' },
                 ].map((item, i) => (
                   <Link key={i} href={item.href} onClick={() => setShowSearch(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 8px', borderRadius: 8, fontSize: 14, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer' }}>
                     <CalendarDays size={16} style={{ color: 'var(--text-tertiary)' }} />

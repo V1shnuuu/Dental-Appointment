@@ -20,8 +20,14 @@ model User {
   updatedAt     DateTime        @updatedAt
 
   patientProfile PatientProfile?
+  doctorProfile  Doctor?
   appointments   Appointment[]
   notifications  Notification[]
+
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  prescriptions    Prescription[]
+  files            SharedFile[]
 }
 
 model PatientProfile {
@@ -55,12 +61,16 @@ model MedicalHistory {
 
 model Doctor {
   id            String          @id @default(uuid())
+  userId        String?         @unique
+  user          User?           @relation(fields: [userId], references: [id])
   name          String
   specialty     String
   bio           String?
   
   appointments  Appointment[]
   slots         AppointmentSlot[]
+  prescriptions Prescription[]
+  files         SharedFile[]
 }
 
 model AppointmentSlot {
@@ -72,7 +82,7 @@ model AppointmentSlot {
   startTime     String          // e.g., "09:00"
   endTime       String          // e.g., "09:30"
   isBooked      Boolean         @default(false)
-  isLocked      Boolean         @default(false) // For slot locking simulation
+  isLocked      Boolean         @default(false)
 }
 
 model Appointment {
@@ -85,7 +95,7 @@ model Appointment {
   date            DateTime
   time            String
   reason          String
-  painLevel       Int           // 0 - 10
+  painLevel       Int?          // 0 - 10
   symptoms        String?
   insuranceInfo   String?
   status          String        @default("confirmed") // 'confirmed', 'completed', 'cancelled', 'rescheduled'
@@ -95,6 +105,53 @@ model Appointment {
   updatedAt       DateTime      @updatedAt
 }
 
+model Message {
+  id            String          @id @default(uuid())
+  senderId      String
+  receiverId    String
+  sender        User            @relation("SentMessages", fields: [senderId], references: [id])
+  receiver      User            @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  
+  content       String
+  attachments   String?         // JSON array of file URLs
+  isRead        Boolean         @default(false)
+  
+  createdAt     DateTime        @default(now())
+}
+
+model Prescription {
+  id            String          @id @default(uuid())
+  patientId     String
+  doctorId      String
+  patient       User            @relation(fields: [patientId], references: [id])
+  doctor        Doctor          @relation(fields: [doctorId], references: [id])
+  
+  medication    String
+  dosage        String
+  frequency     String
+  duration      String
+  instructions  String?
+  status        String          @default("active") // 'active', 'completed', 'expired'
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model SharedFile {
+  id            String          @id @default(uuid())
+  patientId     String
+  doctorId      String
+  patient       User            @relation(fields: [patientId], references: [id])
+  doctor        Doctor          @relation(fields: [doctorId], references: [id])
+  
+  name          String
+  url           String
+  type          String          // 'xray', 'report', 'document', 'image'
+  size          String?
+  
+  createdAt     DateTime        @default(now())
+}
+
 model Notification {
   id            String          @id @default(uuid())
   userId        String
@@ -102,8 +159,9 @@ model Notification {
   
   title         String
   message       String
-  type          String          @default("info") // 'info', 'reminder', 'alert'
+  type          String          @default("info")
   isRead        Boolean         @default(false)
   
   createdAt     DateTime        @default(now())
 }
+
