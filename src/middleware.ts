@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('session')?.value;
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ['/', '/login', '/signup', '/api/notify', '/intake', '/verify-email', '/forgot-password', '/portal-select', '/doctor/login'];
+  const publicRoutes = ['/', '/login', '/signup', '/api/notify', '/intake', '/verify-email', '/forgot-password'];
   const isPublicRoute = publicRoutes.some(p => pathname === p || pathname.startsWith(p + '/'));
 
   if (!sessionCookie && !isPublicRoute) {

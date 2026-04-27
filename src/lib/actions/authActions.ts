@@ -40,28 +40,34 @@ export async function signupAction(prevState: any, formData: FormData) {
 
     const passwordHash = await bcrypt.hash(parsed.data.password, 10);
     
+    // Determine role based on keyword
+    const role = parsed.data.email.toLowerCase().includes('.clinic') ? 'doctor' : 'patient';
+
     const user = await prisma.user.create({
       data: {
         email: parsed.data.email,
         phone: parsed.data.phone,
         passwordHash,
-        role: 'patient',
+        role: role,
       }
     });
 
     await loginUser({ id: user.id, email: user.email, role: user.role });
-    return { success: true };
+    return { success: true, role: user.role };
   } catch (error: any) {
     return { error: error.message };
   }
 }
 
 export async function loginAction(prevState: any, formData: FormData) {
+  console.log('--- loginAction Start ---');
   try {
     const data = Object.fromEntries(formData.entries());
-    const parsed = loginSchema.safeParse(data);
+    console.log('Login attempt for:', data.email);
     
+    const parsed = loginSchema.safeParse(data);
     if (!parsed.success) {
+      console.log('Validation failed');
       return { error: 'Invalid fields.' };
     }
     
@@ -70,18 +76,29 @@ export async function loginAction(prevState: any, formData: FormData) {
     });
 
     if (!user || !user.passwordHash) {
+      console.log('User not found');
       return { error: 'Invalid credentials.' };
     }
 
     const isMatch = await bcrypt.compare(parsed.data.password, user.passwordHash);
     if (!isMatch) {
+      console.log('Password mismatch');
       return { error: 'Invalid credentials.' };
     }
 
-    await loginUser({ id: user.id, email: user.email, role: user.role });
-    return { success: true };
+    // Dynamic role logic based on keyword
+    let currentRole = user.role;
+    if (parsed.data.email.toLowerCase().includes('.clinic')) {
+      currentRole = 'doctor';
+    }
+    console.log('Assigned role:', currentRole);
+
+    await loginUser({ id: user.id, email: user.email, role: currentRole });
+    console.log('Session created, returning success');
+    return { success: true, role: currentRole };
   } catch (error: any) {
-    return { error: error.message };
+    console.error('loginAction Error:', error);
+    return { error: error.message || 'An internal error occurred.' };
   }
 }
 

@@ -11,6 +11,7 @@ const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, tra
 
 export default function PatientFiles() {
   const sharedFiles = [
+    { name: 'Dental_Health_Report.csv', provider: 'System Generated', type: 'Report', size: '1.2 KB', date: 'Oct 26, 2026', url: '/dental_health_report.csv' },
     { name: 'X-Ray_Lower_Jaw.jpg', provider: 'Dr. James Wilson', type: 'X-Ray', size: '4.2 MB', date: 'Sep 15, 2026' },
     { name: 'Care_Instructions.pdf', provider: 'Dr. James Wilson', type: 'Instruction', size: '1.2 MB', date: 'Sep 16, 2026' },
     { name: 'Lab_Report_Blood_Work.pdf', provider: 'Medical Lab', type: 'Report', size: '1.8 MB', date: 'Aug 10, 2026' },
@@ -77,9 +78,11 @@ export default function PatientFiles() {
                      <span>{file.size}</span>
                   </div>
                 </div>
-                <button className="btn-icon" style={{ background: 'white', border: '1px solid var(--border)' }}>
-                   <Download size={16} />
-                </button>
+                <a href={file.url || '#'} download={file.name} style={{ textDecoration: 'none' }}>
+                  <button className="btn-icon" style={{ background: 'white', border: '1px solid var(--border)' }}>
+                     <Download size={16} />
+                  </button>
+                </a>
               </motion.div>
             ))}
           </div>

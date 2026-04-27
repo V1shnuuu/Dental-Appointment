@@ -18,7 +18,13 @@ export default function SignupPage() {
   const strength = [hasLength, hasUpper, hasNumber].filter(Boolean).length;
 
   useEffect(() => {
-    if (state?.success) router.push('/verify-email');
+    if (state?.success) {
+      if (state.role === 'doctor') {
+        router.push('/doctor/dashboard');
+      } else {
+        router.push('/verify-email');
+      }
+    }
   }, [state, router]);
 
   return (

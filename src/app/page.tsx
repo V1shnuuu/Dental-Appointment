@@ -43,10 +43,10 @@ export default function LandingPage() {
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/portal-select" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none' }}>
+          <Link href="/login" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none' }}>
             Sign In
           </Link>
-          <Link href="/portal-select" className="btn btn-primary" style={{ padding: '10px 24px', borderRadius: 12, fontSize: 14 }}>
+          <Link href="/login" className="btn btn-primary" style={{ padding: '10px 24px', borderRadius: 12, fontSize: 14 }}>
             Get Started
           </Link>
           <button className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ display: 'none', background: 'none', border: 'none' }}>
@@ -64,17 +64,17 @@ export default function LandingPage() {
 
         <motion.div variants={stagger} initial="hidden" animate="visible" style={{ position: 'relative', zIndex: 10, maxWidth: 900, margin: '0 auto' }}>
           <motion.div variants={fadeUp} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 99, background: 'var(--accent-soft)', color: 'var(--accent)', fontSize: 13, fontWeight: 600, marginBottom: 24 }}>
-            <Sparkles size={14} /> Now Available: Patient & Doctor Multi-Portal
+            <Sparkles size={14} /> Now Available: Unified Portal Access
           </motion.div>
           <motion.h1 variants={fadeUp} style={{ fontSize: 'clamp(40px, 8vw, 72px)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: 24 }}>
             Modern Dental Care <br />
             <span style={{ background: 'linear-gradient(to right, var(--accent), var(--teal))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Reimagined.</span>
           </motion.h1>
           <motion.p variants={fadeUp} style={{ fontSize: 'clamp(16px, 1.5vw, 20px)', color: 'var(--text-secondary)', maxWidth: 640, margin: '0 auto 40px', lineHeight: 1.6 }}>
-            One connected platform for Patients and Doctors. DentalConnect OS streamlines everything from clinical notes to patient bookings.
+            One connected platform for Patients and Doctors. DentalConnect OS automatically detects your workspace for a seamless experience.
           </motion.p>
           <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-            <Link href="/portal-select" className="btn btn-primary" style={{ padding: '16px 36px', fontSize: 16, borderRadius: 16 }}>
+            <Link href="/login" className="btn btn-primary" style={{ padding: '16px 36px', fontSize: 16, borderRadius: 16 }}>
               Get Started Now <ArrowRight size={18} />
             </Link>
             <button className="btn btn-secondary" style={{ padding: '16px 36px', fontSize: 16, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -149,32 +149,32 @@ export default function LandingPage() {
       {/* ═══ PORTAL SELECTOR (Inline Preview) ═══ */}
       <section style={{ padding: '100px 40px', background: 'var(--bg-subtle)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 16 }}>Unified Portal Selection</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: 60 }}>Choose your workspace to get started.</p>
+          <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 16 }}>One Account, Dual Portals</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 60 }}>Our system intelligently routes you to the correct workspace based on your clinical credentials.</p>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, maxWidth: 900, margin: '0 auto' }}>
-            <Link href="/portal-select" style={{ textDecoration: 'none' }}>
+            <Link href="/login" style={{ textDecoration: 'none' }}>
               <motion.div whileHover={{ y: -8 }} className="card" style={{ padding: 40, background: 'var(--bg-surface)', textAlign: 'center', cursor: 'pointer' }}>
                 <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                   <Users size={32} />
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Patient Portal</h3>
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Patient Experience</h3>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Book appointments, view medical history, and chat with your doctor.</p>
                 <div style={{ marginTop: 24, fontSize: 14, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                  Enter Portal <ChevronRight size={16} />
+                  Login to Portal <ChevronRight size={16} />
                 </div>
               </motion.div>
             </Link>
 
-            <Link href="/portal-select" style={{ textDecoration: 'none' }}>
+            <Link href="/login" style={{ textDecoration: 'none' }}>
               <motion.div whileHover={{ y: -8 }} className="card" style={{ padding: 40, background: 'var(--bg-surface)', textAlign: 'center', cursor: 'pointer' }}>
                 <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--teal-soft)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                   <Activity size={32} />
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Doctor Portal</h3>
+                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Clinical Console</h3>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Manage appointments, patient clinical notes, and prescriptions.</p>
                 <div style={{ marginTop: 24, fontSize: 14, fontWeight: 600, color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                  Enter Portal <ChevronRight size={16} />
+                  Doctor Access <ChevronRight size={16} />
                 </div>
               </motion.div>
             </Link>
@@ -256,7 +256,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 36, fontWeight: 900, marginBottom: 24 }}>Ready to modernize your practice?</h2>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 80 }}>
-            <Link href="/portal-select" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: 16 }}>Get Started</Link>
+            <Link href="/login" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: 16 }}>Get Started</Link>
             <button className="btn btn-secondary" style={{ padding: '16px 40px', fontSize: 16 }}>Book a Demo</button>
           </div>
 

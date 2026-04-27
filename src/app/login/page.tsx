@@ -14,7 +14,13 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (state?.success) router.push('/patient/dashboard');
+    if (state?.success) {
+      if (state.role === 'doctor') {
+        router.push('/doctor/dashboard');
+      } else {
+        router.push('/patient/dashboard');
+      }
+    }
   }, [state, router]);
 
   return (
