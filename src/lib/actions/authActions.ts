@@ -70,6 +70,16 @@ export async function loginAction(prevState: any, formData: FormData) {
       console.log('Validation failed');
       return { error: 'Invalid fields.' };
     }
+
+    // Demo Accounts Bypass
+    if (parsed.data.email === 'patient@demo.com' && parsed.data.password === 'demo123') {
+      await loginUser({ id: 'demo-patient-id', email: 'patient@demo.com', role: 'patient' });
+      return { success: true, role: 'patient' };
+    }
+    if (parsed.data.email === 'doctor@demo.com' && parsed.data.password === 'demo123') {
+      await loginUser({ id: 'demo-doctor-id', email: 'doctor@demo.com', role: 'doctor' });
+      return { success: true, role: 'doctor' };
+    }
     
     const user = await prisma.user.findUnique({
       where: { email: parsed.data.email }

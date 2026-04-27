@@ -1,10 +1,10 @@
 'use client';
 
 import { 
-  LayoutDashboard, Users, Calendar, ClipboardList, 
-  Pill, FolderClosed, MessageSquare, BarChart3, 
+  LayoutDashboard, Calendar, 
+  Pill, FolderClosed, MessageSquare, 
   Settings, LogOut, Heart, Bell, Search, Command,
-  Plus
+  Plus, History, Network
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -13,9 +13,10 @@ import { useState } from 'react';
 
 const navItems = [
   { name: 'Dashboard', href: '/doctor/dashboard', icon: LayoutDashboard },
-  { name: 'Patients', href: '/doctor/patients', icon: Users },
+  { name: 'History', href: '/doctor/history', icon: History },
   { name: 'Appointments', href: '/doctor/appointments', icon: Calendar },
-  { name: 'Messages', href: '/doctor/chat', icon: MessageSquare, badge: 3 },
+  { name: 'Messages', href: '/doctor/messages', icon: MessageSquare, badge: 3 },
+  { name: 'Collab', href: '/doctor/collab', icon: Network },
   { name: 'Prescriptions', href: '/doctor/prescriptions', icon: Pill },
   { name: 'Shared Files', href: '/doctor/files', icon: FolderClosed },
   { name: 'Settings', href: '/doctor/settings', icon: Settings },

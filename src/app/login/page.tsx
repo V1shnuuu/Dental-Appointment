@@ -12,6 +12,18 @@ export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const setDemoPatient = () => {
+    setEmail('patient@demo.com');
+    setPassword('demo123');
+  };
+
+  const setDemoDoctor = () => {
+    setEmail('doctor@demo.com');
+    setPassword('demo123');
+  };
 
   useEffect(() => {
     if (state?.success) {
@@ -81,7 +93,7 @@ export default function LoginPage() {
 
             <div className="input-group">
               <label className="input-label" htmlFor="email">Email</label>
-              <input id="email" name="email" type="email" className="input-field" placeholder="you@example.com" required />
+              <input id="email" name="email" type="email" className="input-field" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
 
             <div className="input-group">
@@ -90,7 +102,7 @@ export default function LoginPage() {
                 <Link href="/forgot-password" style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}>Forgot?</Link>
               </div>
               <div style={{ position: 'relative' }}>
-                <input id="password" name="password" type={showPassword ? 'text' : 'password'} className="input-field" placeholder="••••••••" required style={{ paddingRight: 44 }} />
+                <input id="password" name="password" type={showPassword ? 'text' : 'password'} className="input-field" placeholder="••••••••" required style={{ paddingRight: 44 }} value={password} onChange={(e) => setPassword(e.target.value)} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}>
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -100,6 +112,16 @@ export default function LoginPage() {
             <button type="submit" className="btn btn-primary" disabled={isPending} style={{ width: '100%', padding: '14px 24px', fontSize: 15, marginTop: 4 }}>
               {isPending ? 'Signing in...' : 'Sign In'} <ArrowRight size={18} />
             </button>
+
+            {/* Demo Credentials */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+              <button type="button" onClick={setDemoPatient} className="btn btn-secondary" style={{ flex: 1, padding: '10px', fontSize: 13, cursor: 'pointer' }}>
+                Demo Patient
+              </button>
+              <button type="button" onClick={setDemoDoctor} className="btn btn-secondary" style={{ flex: 1, padding: '10px', fontSize: 13, cursor: 'pointer' }}>
+                Demo Doctor
+              </button>
+            </div>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 28, fontSize: 14, color: 'var(--text-secondary)' }}>
