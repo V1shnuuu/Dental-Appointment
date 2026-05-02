@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarDays, Clock, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Star, MapPin, RefreshCw } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { bookAppointmentAction } from '@/lib/actions/appointmentActions';
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } };
 
@@ -22,9 +23,9 @@ export default function BookAppointment() {
   const existingReason = searchParams.get('reason');
 
   const doctors = [
-    { id: 1, name: 'Dr. Sarah Smith', specialty: 'General Dentist', rating: 4.9, initials: 'SS', location: 'Main Campus', gradient: 'linear-gradient(135deg, #2563EB, #3B82F6)' },
-    { id: 2, name: 'Dr. Michael Chen', specialty: 'Orthodontist', rating: 4.8, initials: 'MC', location: 'East Wing', gradient: 'linear-gradient(135deg, #0D9488, #14B8A6)' },
-    { id: 3, name: 'Dr. Emily Carter', specialty: 'Endodontist', rating: 4.9, initials: 'EC', location: 'Suite 200', gradient: 'linear-gradient(135deg, #8B5CF6, #A78BFA)' },
+    { id: 'dr-sarah-smith', name: 'Dr. Sarah Smith', specialty: 'General Dentist', rating: 4.9, initials: 'SS', location: 'Main Campus', gradient: 'linear-gradient(135deg, #2563EB, #3B82F6)' },
+    { id: 'dr-michael-chen', name: 'Dr. Michael Chen', specialty: 'Orthodontist', rating: 4.8, initials: 'MC', location: 'East Wing', gradient: 'linear-gradient(135deg, #0D9488, #14B8A6)' },
+    { id: 'dr-emily-carter', name: 'Dr. Emily Carter', specialty: 'Endodontist', rating: 4.9, initials: 'EC', location: 'Suite 200', gradient: 'linear-gradient(135deg, #8B5CF6, #A78BFA)' },
   ];
 
   // If rescheduling, auto-select the doctor and skip to step 2
@@ -59,9 +60,23 @@ export default function BookAppointment() {
     { time: '03:00 PM', available: true },
   ];
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (!selectedDoctor || !selectedDate || !selectedSlot) return;
+    
     setIsSubmitting(true);
-    setTimeout(() => { setStep(4); setIsSubmitting(false); }, 1200);
+    const result = await bookAppointmentAction({
+      doctorId: selectedDoctor.id.toString(),
+      date: selectedDate,
+      time: selectedSlot,
+      reason: reason
+    });
+
+    if (result.success) {
+      setStep(4);
+    } else {
+      alert(result.error || 'Failed to book appointment');
+    }
+    setIsSubmitting(false);
   };
 
   const handleAddToGoogleCalendar = () => {

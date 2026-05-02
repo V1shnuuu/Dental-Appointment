@@ -9,12 +9,41 @@ import {
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
+import { useState, useEffect } from 'react';
+import { getUserProfileAction } from '@/lib/actions/authActions';
+
 export default function PatientFiles() {
-  const sharedFiles = [
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const userData = await getUserProfileAction();
+      if (userData) {
+        setUser(userData);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  const isMock = user?.email === 'patient@demo.com';
+  
+  const mockFiles = [
     { name: 'Dental_Health_Report.csv', provider: 'System Generated', type: 'Report', size: '1.2 KB', date: 'Oct 26, 2026', url: '/dental_health_report.csv' },
     { name: 'X-Ray_Lower_Jaw.jpg', provider: 'Dr. James Wilson', type: 'X-Ray', size: '4.2 MB', date: 'Sep 15, 2026' },
     { name: 'Care_Instructions.pdf', provider: 'Dr. James Wilson', type: 'Instruction', size: '1.2 MB', date: 'Sep 16, 2026' },
     { name: 'Lab_Report_Blood_Work.pdf', provider: 'Medical Lab', type: 'Report', size: '1.8 MB', date: 'Aug 10, 2026' },
+  ];
+
+  const sharedFiles = isMock ? mockFiles : [];
+
+  const categories = isMock ? [
+    { label: 'X-Rays', count: 1, color: 'var(--accent)' },
+    { label: 'Lab Reports', count: 4, color: 'var(--purple)' },
+    { label: 'Prescriptions', count: 12, color: 'var(--teal)' },
+  ] : [
+    { label: 'X-Rays', count: 0, color: 'var(--accent)' },
+    { label: 'Lab Reports', count: 0, color: 'var(--purple)' },
+    { label: 'Prescriptions', count: 0, color: 'var(--teal)' },
   ];
 
   return (
@@ -85,6 +114,13 @@ export default function PatientFiles() {
                 </a>
               </motion.div>
             ))}
+
+            {sharedFiles.length === 0 && (
+              <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)' }}>
+                <FolderClosed size={32} style={{ marginBottom: 12, opacity: 0.3 }} />
+                <p style={{ fontSize: 14 }}>No documents have been shared with you yet.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -95,11 +131,7 @@ export default function PatientFiles() {
 
       {/* Categories */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
-         {[
-           { label: 'X-Rays', count: 1, color: 'var(--accent)' },
-           { label: 'Lab Reports', count: 4, color: 'var(--purple)' },
-           { label: 'Prescriptions', count: 12, color: 'var(--teal)' },
-         ].map((cat, i) => (
+         {categories.map((cat, i) => (
            <div key={i} className="card" style={{ padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 24, fontWeight: 800, color: cat.color, marginBottom: 4 }}>{cat.count}</div>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{cat.label}</div>

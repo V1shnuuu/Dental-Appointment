@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { logoutAction } from '@/lib/actions/authActions';
+import { logoutAction, getUserProfileAction } from '@/lib/actions/authActions';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
 
 const navItems = [
   { name: 'Dashboard', href: '/patient/dashboard', icon: LayoutDashboard },
@@ -23,6 +24,17 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
   const router = useRouter();
   const { logout } = useAuth();
   const [showSearch, setShowSearch] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const userData = await getUserProfileAction();
+      if (userData) {
+        setUser({ name: userData.name, email: userData.email || '' });
+      }
+    }
+    fetchUser();
+  }, [pathname]);
 
   const handleLogout = async () => {
     logout();
@@ -85,11 +97,11 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
           {/* Profile */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 12px', borderTop: '1px solid var(--border)', marginTop: 12 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, var(--accent), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
-              VP
+              {user?.name?.substring(0, 2).toUpperCase() || 'UP'}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Vishnu Priyan</div>
-              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>vishnu@email.com</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.name || 'Loading...'}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || ''}</div>
             </div>
             <button onClick={handleLogout} className="btn-icon" style={{ width: 32, height: 32, border: 'none' }} title="Sign Out">
               <LogOut size={14} />
@@ -115,7 +127,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
             <span style={{ position: 'absolute', top: 6, right: 6, width: 7, height: 7, borderRadius: '50%', background: 'var(--rose)', border: '2px solid var(--bg-surface)' }} />
           </button>
           <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, var(--accent), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-            VP
+            {user?.name?.substring(0, 2).toUpperCase() || 'UP'}
           </div>
         </header>
 

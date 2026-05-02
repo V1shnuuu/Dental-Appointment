@@ -12,6 +12,7 @@ datasource db {
 
 model User {
   id            String          @id @default(uuid())
+  firebaseUid   String?         @unique
   email         String?         @unique
   phone         String?         @unique
   passwordHash  String?
@@ -36,8 +37,8 @@ model PatientProfile {
   user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   firstName           String
   lastName            String
-  dateOfBirth         DateTime
-  phone               String
+  dateOfBirth         DateTime?
+  phone               String?
   address             String?
   emergencyContactName  String?
   emergencyContactPhone String?

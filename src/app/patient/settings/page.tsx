@@ -1,12 +1,79 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Shield, Bell, Palette } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Shield, Bell, Palette, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { getUserProfileAction, updateProfileAction } from '@/lib/actions/authActions';
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    address: ''
+  });
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    async function fetchUser() {
+      const userData = await getUserProfileAction();
+      if (userData) {
+        setUser(userData);
+        setFormData({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          phone: userData.phone || '',
+          address: (userData as any).address || ''
+        });
+      }
+    }
+    fetchUser();
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage({ type: '', text: '' });
+    
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('firstName', formData.firstName);
+      fd.append('lastName', formData.lastName);
+      fd.append('phone', formData.phone);
+      
+      const res = await updateProfileAction(fd);
+      if (res.success) {
+        setMessage({ type: 'success', text: 'Profile updated successfully!' });
+        const userData = await getUserProfileAction();
+        if (userData) setUser(userData);
+        router.refresh();
+      } else {
+        setMessage({ type: 'error', text: res.error || 'Failed to update' });
+      }
+    });
+  };
+
+  const isMock = user?.email === 'patient@demo.com';
+  const displayData = isMock ? {
+    name: 'Vishnu Priyan',
+    email: 'vishnu@email.com',
+    phone: '(555) 123-4567',
+    address: '123 Main Street, Suite 100',
+    id: '#84920',
+    memberSince: 'Jan 2024'
+  } : {
+    name: user?.name || '...',
+    email: user?.email || '...',
+    id: user?.id?.substring(0, 8) || '...',
+    memberSince: 'May 2026'
+  };
+
   return (
     <motion.div variants={stagger} initial="hidden" animate="visible" style={{ maxWidth: 720, margin: '0 auto' }}>
       <motion.div variants={fadeUp} style={{ marginBottom: 32 }}>
@@ -18,54 +85,99 @@ export default function SettingsPage() {
       <motion.div variants={fadeUp} className="card" style={{ padding: 28, marginBottom: 20, cursor: 'default' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
           <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg, var(--accent), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 22, fontFamily: 'Outfit, sans-serif', boxShadow: 'var(--shadow-glow)' }}>
-            VP
+            {displayData.name.substring(0, 2).toUpperCase()}
           </div>
           <div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 2 }}>Vishnu Priyan</h3>
-            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>Patient ID: #84920 · Member since Jan 2024</p>
+            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 2 }}>{displayData.name}</h3>
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>Patient ID: {displayData.id} · Member since {displayData.memberSince}</p>
           </div>
-          <button className="btn btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>Edit Profile</button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {message.text && (
+          <div style={{ 
+            marginBottom: 20, padding: '12px 16px', borderRadius: 12, 
+            background: message.type === 'success' ? 'var(--mint-soft)' : 'var(--rose-soft)',
+            color: message.type === 'success' ? 'var(--mint)' : 'var(--rose)',
+            fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8
+          }}>
+            {message.type === 'success' ? <CheckCircle2 size={18} /> : <Shield size={18} />}
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div className="input-group">
-            <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Mail size={13} /> Email</label>
-            <input className="input-field" defaultValue="vishnu@email.com" />
+            <label className="input-label"><User size={14} /> First Name</label>
+            <input 
+              value={formData.firstName} 
+              onChange={e => setFormData({...formData, firstName: e.target.value})}
+              className="input-field" 
+              placeholder="First Name" 
+              disabled={isMock}
+            />
           </div>
           <div className="input-group">
-            <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Phone size={13} /> Phone</label>
-            <input className="input-field" defaultValue="(555) 123-4567" />
+            <label className="input-label"><User size={14} /> Last Name</label>
+            <input 
+              value={formData.lastName} 
+              onChange={e => setFormData({...formData, lastName: e.target.value})}
+              className="input-field" 
+              placeholder="Last Name" 
+              disabled={isMock}
+            />
           </div>
           <div className="input-group" style={{ gridColumn: 'span 2' }}>
-            <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={13} /> Address</label>
-            <input className="input-field" defaultValue="123 Main Street, Suite 100" />
+            <label className="input-label"><Mail size={14} /> Email Address</label>
+            <input value={displayData.email} className="input-field" disabled style={{ opacity: 0.6 }} />
           </div>
-        </div>
-        <button className="btn btn-primary" style={{ marginTop: 20 }}>Save Changes</button>
+          <div className="input-group" style={{ gridColumn: 'span 2' }}>
+            <label className="input-label"><Phone size={14} /> Phone</label>
+            <input 
+              value={isMock ? displayData.phone : formData.phone} 
+              onChange={e => setFormData({...formData, phone: e.target.value})}
+              className="input-field" 
+              placeholder="Phone Number" 
+              disabled={isMock}
+            />
+          </div>
+          <div className="input-group" style={{ gridColumn: 'span 2' }}>
+            <label className="input-label"><MapPin size={14} /> Address</label>
+            <input 
+              value={isMock ? displayData.address : formData.address} 
+              onChange={e => setFormData({...formData, address: e.target.value})}
+              className="input-field" 
+              placeholder="Your Address" 
+              disabled={isMock}
+            />
+          </div>
+          
+          {!isMock && (
+            <button type="submit" disabled={isPending} className="btn btn-primary" style={{ gridColumn: 'span 2', marginTop: 12 }}>
+              {isPending ? 'Saving...' : 'Save Changes'}
+            </button>
+          )}
+        </form>
       </motion.div>
 
-      {/* Notifications */}
-      <motion.div variants={fadeUp} className="card" style={{ padding: 28, marginBottom: 20, cursor: 'default' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+      {/* Preferences Section */}
+      <motion.div variants={fadeUp} className="card" style={{ padding: 28 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
           <Bell size={18} style={{ color: 'var(--accent)' }} /> Notification Preferences
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {[
-            { label: 'Appointment Reminders', desc: 'Get reminded 24 hours before visits', on: true },
-            { label: 'Prescription Alerts', desc: 'Notifications for medication schedules', on: true },
-            { label: 'Health Tips', desc: 'Weekly dental care tips and insights', on: false },
-          ].map((n, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: 12, border: '1px solid var(--border)' }}>
+            { title: 'Appointment Reminders', desc: 'Get reminded 24 hours before visits' },
+            { title: 'New Messages', desc: 'Notify when a doctor sends a message' },
+            { title: 'Lab Results', desc: 'Alert when new results are available' },
+          ].map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 16, borderBottom: i < 2 ? '1px solid var(--border)' : 'none' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{n.label}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{n.desc}</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{item.title}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{item.desc}</div>
               </div>
-              <label style={{ position: 'relative', width: 44, height: 24, cursor: 'pointer' }}>
-                <input type="checkbox" defaultChecked={n.on} style={{ display: 'none' }} />
-                <div style={{ width: 44, height: 24, borderRadius: 12, background: n.on ? 'var(--accent)' : 'var(--border-strong)', transition: 'background 0.3s', position: 'relative' }}>
-                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'white', position: 'absolute', top: 3, left: n.on ? 23 : 3, transition: 'left 0.3s', boxShadow: 'var(--shadow-sm)' }} />
-                </div>
-              </label>
+              <div style={{ width: 44, height: 24, borderRadius: 20, background: 'var(--accent)', position: 'relative', cursor: 'pointer' }}>
+                <div style={{ position: 'absolute', right: 2, top: 2, width: 20, height: 20, borderRadius: '50%', background: 'white' }} />
+              </div>
             </div>
           ))}
         </div>

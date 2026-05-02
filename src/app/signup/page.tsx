@@ -82,6 +82,17 @@ export default function SignupPage() {
               </div>
             )}
 
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="input-group">
+                <label className="input-label" htmlFor="firstName">First Name</label>
+                <input id="firstName" name="firstName" type="text" className="input-field" placeholder="John" required />
+              </div>
+              <div className="input-group">
+                <label className="input-label" htmlFor="lastName">Last Name</label>
+                <input id="lastName" name="lastName" type="text" className="input-field" placeholder="Doe" required />
+              </div>
+            </div>
+
             <div className="input-group">
               <label className="input-label" htmlFor="email">Email</label>
               <input id="email" name="email" type="email" className="input-field" placeholder="you@example.com" required />

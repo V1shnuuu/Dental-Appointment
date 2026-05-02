@@ -3,6 +3,9 @@
 import { motion } from 'framer-motion';
 import { CalendarDays, Clock, ArrowRight, ChevronRight, Activity, FileText, Heart, Sparkles, TrendingUp, Sun, Bell, MessageSquare, FolderClosed } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { getUserProfileAction } from '@/lib/actions/authActions';
+import { getPatientAppointmentsAction } from '@/lib/actions/appointmentActions';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } };
@@ -10,6 +13,43 @@ const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, tra
 export default function PatientDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const [user, setUser] = useState<any>(null);
+  const [realAppointments, setRealAppointments] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const userData = await getUserProfileAction();
+      if (userData) {
+        setUser(userData);
+      }
+      const appts = await getPatientAppointmentsAction();
+      setRealAppointments(appts);
+    }
+    fetchData();
+  }, []);
+
+  const isMock = user?.email === 'patient@demo.com';
+  const displayName = isMock ? 'Vishnu' : (user?.name || '...');
+
+  const stats = isMock ? [
+    { label: 'Upcoming Visits', value: '2', icon: CalendarDays, color: 'var(--accent)', bg: 'var(--accent-soft)', trend: '+1 this week' },
+    { label: 'Past Visits', value: '14', icon: Activity, color: 'var(--teal)', bg: 'var(--teal-soft)', trend: 'Last: Sep 1' },
+    { label: 'Health Score', value: '92', icon: Heart, color: 'var(--mint)', bg: 'var(--mint-soft)', trend: '+4 pts' },
+    { label: 'Active Rx', value: '2', icon: FileText, color: 'var(--purple)', bg: 'var(--purple-soft)', trend: 'Renewing soon' },
+  ] : [
+    { label: 'Upcoming Visits', value: realAppointments.length.toString(), icon: CalendarDays, color: 'var(--accent)', bg: 'var(--accent-soft)', trend: realAppointments.length > 0 ? 'Upcoming soon' : 'None scheduled' },
+    { label: 'Past Visits', value: '0', icon: Activity, color: 'var(--teal)', bg: 'var(--teal-soft)', trend: 'No history' },
+    { label: 'Health Score', value: '--', icon: Heart, color: 'var(--mint)', bg: 'var(--mint-soft)', trend: 'Pending visit' },
+    { label: 'Active Rx', value: '0', icon: FileText, color: 'var(--purple)', bg: 'var(--purple-soft)', trend: 'None' },
+  ];
+
+  const nextAppt = isMock ? {
+    doctor: 'Dr. Sarah Smith',
+    reason: 'General Checkup',
+    date: 'Oct 15, 2026',
+    time: '10:00 AM',
+    initials: 'SS'
+  } : realAppointments[0] || null;
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -30,13 +70,15 @@ export default function PatientDashboard() {
               <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>{greeting}</span>
             </div>
             <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 8 }}>
-              Welcome back, Vishnu <span style={{ fontSize: 28 }}>👋</span>
+              Welcome back, {displayName} <span style={{ fontSize: 28 }}>👋</span>
             </h1>
             <p style={{ fontSize: 15, color: 'var(--text-secondary)', maxWidth: 420 }}>
-              Your next appointment is in <strong style={{ color: 'var(--accent)' }}>3 days</strong>. Everything looks great with your dental health.
+              {isMock 
+                ? 'Your next appointment is in 3 days. Everything looks great with your dental health.'
+                : 'Ready to take care of your smile today? Book an appointment to get started.'}
             </p>
           </div>
-          <Link href="/book" className="btn btn-primary" style={{ padding: '12px 28px', fontSize: 14 }}>
+          <Link href="/patient/book" className="btn btn-primary" style={{ padding: '12px 28px', fontSize: 14 }}>
             Book Appointment <ArrowRight size={16} />
           </Link>
         </div>
@@ -44,12 +86,7 @@ export default function PatientDashboard() {
 
       {/* ═══ STAT CARDS ═══ */}
       <motion.div variants={fadeUp} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        {[
-          { label: 'Upcoming Visits', value: '2', icon: CalendarDays, color: 'var(--accent)', bg: 'var(--accent-soft)', trend: '+1 this week' },
-          { label: 'Past Visits', value: '14', icon: Activity, color: 'var(--teal)', bg: 'var(--teal-soft)', trend: 'Last: Sep 1' },
-          { label: 'Health Score', value: '92', icon: Heart, color: 'var(--mint)', bg: 'var(--mint-soft)', trend: '+4 pts' },
-          { label: 'Active Rx', value: '2', icon: FileText, color: 'var(--purple)', bg: 'var(--purple-soft)', trend: 'Renewing soon' },
-        ].map((stat, i) => {
+        {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
             <motion.div key={i} variants={fadeUp} className="card" style={{ padding: 24, cursor: 'default' }}>
@@ -71,40 +108,53 @@ export default function PatientDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
 
         {/* Next Appointment */}
-        <motion.div variants={fadeUp} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '24px 28px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700 }}>Next Appointment</h3>
-            <span className="badge badge-blue" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="status-dot" style={{ background: 'var(--accent)', boxShadow: '0 0 6px var(--accent)' }} />
-              Confirmed
-            </span>
-          </div>
-          <div style={{ padding: '20px 28px 28px' }}>
-            <div style={{
-              display: 'flex', gap: 24, alignItems: 'center',
-              background: 'linear-gradient(135deg, #EFF6FF, #F0FDFA)',
-              borderRadius: 16, padding: 24, border: '1px solid var(--border)',
-            }}>
-              {/* Doctor Avatar */}
-              <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, var(--accent), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>
-                SS
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Dr. Sarah Smith</div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>General Checkup</div>
-                <div style={{ display: 'flex', gap: 16, fontSize: 13, fontWeight: 500 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
-                    <CalendarDays size={14} /> Oct 15, 2026
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--teal)' }}>
-                    <Clock size={14} /> 10:00 AM
-                  </span>
-                </div>
-              </div>
-              <Link href="/book?reschedule=true&doctor=Dr.+Sarah+Smith&specialty=General+Dentist&initials=SS&location=Main+Campus&date=2026-10-15&time=10:00+AM&reason=General+Checkup" className="btn btn-secondary btn-sm">Reschedule</Link>
+        {nextAppt ? (
+          <motion.div variants={fadeUp} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '24px 28px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Next Appointment</h3>
+              <span className="badge badge-blue" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span className="status-dot" style={{ background: 'var(--accent)', boxShadow: '0 0 6px var(--accent)' }} />
+                Confirmed
+              </span>
             </div>
-          </div>
-        </motion.div>
+            <div style={{ padding: '20px 28px 28px' }}>
+              <div style={{
+                display: 'flex', gap: 24, alignItems: 'center',
+                background: 'linear-gradient(135deg, #EFF6FF, #F0FDFA)',
+                borderRadius: 16, padding: 24, border: '1px solid var(--border)',
+              }}>
+                {/* Doctor Avatar */}
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, var(--accent), var(--teal))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>
+                  {nextAppt.initials}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{nextAppt.doctor}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>{nextAppt.reason}</div>
+                  <div style={{ display: 'flex', gap: 16, fontSize: 13, fontWeight: 500 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
+                      <CalendarDays size={14} /> {nextAppt.date}
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--teal)' }}>
+                      <Clock size={14} /> {nextAppt.time}
+                    </span>
+                  </div>
+                </div>
+                <Link href="/patient/book" className="btn btn-secondary btn-sm">Reschedule</Link>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div variants={fadeUp} className="card" style={{ padding: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: 16 }}>
+             <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CalendarDays size={24} />
+             </div>
+             <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>No Upcoming Visits</h3>
+                <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>You don't have any appointments scheduled yet.</p>
+             </div>
+             <Link href="/patient/book" className="btn btn-primary btn-sm">Book Your First Visit</Link>
+          </motion.div>
+        )}
 
         {/* AI Care Assistant */}
         <motion.div variants={fadeUp} className="card" style={{ padding: 28, background: 'linear-gradient(160deg, #FFFBEB, #FEF3C7)', cursor: 'default' }}>
@@ -115,7 +165,7 @@ export default function PatientDashboard() {
           <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
             Based on your history, we recommend scheduling a cleaning within the next 30 days.
           </p>
-          <Link href="/book" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Link href="/patient/book" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
             Schedule Now <ChevronRight size={14} />
           </Link>
         </motion.div>
@@ -192,7 +242,7 @@ export default function PatientDashboard() {
       <motion.div variants={fadeUp} className="card" style={{ padding: 28, cursor: 'default' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700 }}>Recent Activity</h3>
-          <Link href="/history" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Link href="/patient/history" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
             View All <ChevronRight size={14} />
           </Link>
         </div>

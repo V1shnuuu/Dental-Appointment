@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, CalendarDays, Activity, FileText, ChevronDown, ChevronUp, Image as ImageIcon, Stethoscope } from 'lucide-react';
+import { getUserProfileAction } from '@/lib/actions/authActions';
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
-const history = [
+const mockHistory = [
   {
     id: 'v1', date: 'Sep 1, 2026', type: 'General Checkup', doctor: 'Dr. Sarah Smith', color: 'var(--accent)',
     notes: 'Patient reported minor sensitivity in lower right quadrant. Examination showed no visible decay. Recommended sensitive toothpaste and follow-up in 6 months.',
@@ -29,9 +30,23 @@ const history = [
 ];
 
 export default function MedicalHistory() {
+  const [user, setUser] = useState<any>(null);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('All');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const userData = await getUserProfileAction();
+      if (userData) {
+        setUser(userData);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  const isMock = user?.email === 'patient@demo.com';
+  const history = isMock ? mockHistory : [];
 
   const filtered = history.filter(h =>
     (filterType === 'All' || h.type === filterType) &&
